@@ -2,7 +2,8 @@
 
 <img src="docs/quic.png" width=303 height=124>
 
-[![Build Status](https://travis-ci.org/lucas-clemente/quic-go.svg?branch=master)](https://travis-ci.org/lucas-clemente/quic-go)
+[![Build Status](https://travis-ci.org/marten-seemann/quic-go.svg?branch=master)](https://travis-ci.org/lucas-clemente/quic-go)
+[![Coverage Status](https://coveralls.io/repos/github/marten-seemann/quic-go/badge.svg?branch=master)](https://coveralls.io/github/marten-seemann/quic-go?branch=master)
 [![Godoc Reference](https://godoc.org/github.com/lucas-clemente/quic-go?status.svg)](https://godoc.org/github.com/lucas-clemente/quic-go)
 
 quic-go is an implementation of the [QUIC](https://en.wikipedia.org/wiki/QUIC) protocol in Go. While we're not far from being feature complete, there's still a lot of work to do regarding performance and security. At the moment, we do not recommend use in production systems. We appreciate any feedback :)
