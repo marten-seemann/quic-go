@@ -10,7 +10,7 @@ go:
 
 env:
   - TRAVIS_GOARCH=amd64
-  - TRAVIS_GOARCH=x86
+  - TRAVIS_GOARCH=386
 
 before_install:
   - echo "before_install"
