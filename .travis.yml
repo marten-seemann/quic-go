@@ -9,5 +9,9 @@ go:
   - 1.7beta1
 
 env:
-  - GOARCH=amd64
-  - GOARCH=x86
+  - TRAVIS_GOARCH=amd64
+  - TRAVIS_GOARCH=x86
+
+before_script:
+  - export GOARCH=$TRAVIS_GOARCH
+  - echo $GOARCH
