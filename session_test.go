@@ -587,7 +587,7 @@ var _ = Describe("Session", func() {
 		session.run() // Would normally not return
 		Expect(conn.written[0]).To(ContainSubstring("No recent network activity."))
 		close(done)
-	}, 0.3)
+	}, 3)
 
 	It("errors when the SentPacketHandler has too many packets tracked", func() {
 		streamFrame := frames.StreamFrame{StreamID: 5, Data: []byte("foobar")}

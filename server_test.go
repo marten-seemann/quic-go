@@ -120,7 +120,7 @@ var _ = Describe("Server", func() {
 
 		err = server.Close()
 		Expect(err).ToNot(HaveOccurred())
-	}, 1)
+	}, 3)
 
 	It("setups and responds with error on invalid frame", func(done Done) {
 		server, err := NewServer("127.0.0.1:13370", testdata.GetTLSConfig(), nil)
