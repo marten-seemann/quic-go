@@ -29,7 +29,8 @@ type Server struct {
 	// Private flag for demo, do not use
 	CloseAfterFirstRequest bool
 
-	port int
+	port   int
+	server *quic.Server
 }
 
 // ListenAndServe listens on the UDP address s.Addr and calls s.Handler to handle HTTP/2 requests on incoming connections.
@@ -37,11 +38,15 @@ func (s *Server) ListenAndServe() error {
 	if s.Server == nil {
 		return errors.New("use of h2quic.Server without http.Server")
 	}
-	server, err := quic.NewServer(s.Addr, s.TLSConfig, s.handleStreamCb)
+	if s.server != nil {
+		return errors.New("ListenAndServe may only be called once")
+	}
+	var err error
+	s.server, err = quic.NewServer(s.Addr, s.TLSConfig, s.handleStreamCb)
 	if err != nil {
 		return err
 	}
-	return server.ListenAndServe()
+	return s.server.ListenAndServe()
 }
 
 // ListenAndServeTLS listens on the UDP address s.Addr and calls s.Handler to handle HTTP/2 requests on incoming connections.
@@ -52,18 +57,19 @@ func (s *Server) ListenAndServeTLS(certFile, keyFile string) error {
 	if err != nil {
 		return err
 	}
-
 	// We currently only use the cert-related stuff from tls.Config,
 	// so we don't need to make a full copy.
 	config := &tls.Config{
 		Certificates: certs,
 	}
-	server, err := quic.NewServer(s.Addr, config, s.handleStreamCb)
+	if s.server != nil {
+		return errors.New("ListenAndServe may only be called once")
+	}
+	s.server, err = quic.NewServer(s.Addr, config, s.handleStreamCb)
 	if err != nil {
 		return err
 	}
-
-	return server.ListenAndServe()
+	return s.server.ListenAndServe()
 }
 
 // Serve should not be called, since it only works properly for TCP listeners.
@@ -147,8 +153,16 @@ func (s *Server) handleRequest(session streamCreator, headerStream utils.Stream,
 	return nil
 }
 
-// Close the server
+// Close the server immediately, aborting requests and sending CONNECTION_CLOSE frames to connected clients
 func (s *Server) Close() error {
+	if s.server != nil {
+		return s.server.Close()
+	}
+	return nil
+}
+
+// CloseGracefully shuts down the server gracefully. The server sends a GOAWAY frame first, then waits for either timeout to trigger, or for all running requests to complete.
+func (s *Server) CloseGracefully(timeout time.Duration) error {
 	// TODO: implement
 	return nil
 }
