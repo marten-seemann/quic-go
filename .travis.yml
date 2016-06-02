@@ -1,4 +1,9 @@
 language: go
 
+os:
+  - osx
+  - linux
+
 go:
   - 1.6
+  - 1.7beta1
