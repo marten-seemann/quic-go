@@ -22,7 +22,7 @@ const MaxUndecryptablePackets = 10
 const SmallPacketPayloadSizeThreshold = MaxPacketSize / 2
 
 // SmallPacketSendDelay is the time delay applied to small packets
-const SmallPacketSendDelay = 500 * time.Microsecond
+const SmallPacketSendDelay = 50000 * time.Microsecond
 
 // ReceiveStreamFlowControlWindow is the stream-level flow control window for receiving data
 // This is the value that Google servers are using
