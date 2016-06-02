@@ -12,7 +12,7 @@ env:
   - TRAVIS_GOARCH=amd64
   - TRAVIS_GOARCH=x86
 
-before_script:
-  - echo "before_script"
+before_install:
+  - echo "before_install"
   - export GOARCH=$TRAVIS_GOARCH
   - echo $GOARCH
