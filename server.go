@@ -109,15 +109,14 @@ func (s *Server) Close() error {
 	s.sessionsMutex.Unlock()
 
 	s.connMutex.Lock()
-	defer s.connMutex.Unlock()
+	conn := s.conn
+	s.conn = nil
+	s.connMutex.Unlock()
 
-	if s.conn == nil {
+	if conn == nil {
 		return nil
 	}
-	defer func() {
-		s.conn = nil
-	}()
-	return s.conn.Close()
+	return conn.Close()
 }
 
 func (s *Server) handlePacket(conn *net.UDPConn, remoteAddr *net.UDPAddr, packet []byte) error {
@@ -187,7 +186,7 @@ func composeVersionNegotiation(connectionID protocol.ConnectionID) []byte {
 		VersionFlag:  true,
 	}
 	// TODO: Update version number
-	err := responsePublicHeader.WritePublicHeader(fullReply, protocol.VersionNumber(32))
+	err := responsePublicHeader.WritePublicHeader(fullReply, protocol.Version32)
 	if err != nil {
 		utils.Errorf("error composing version negotiation packet: %s", err.Error())
 	}
