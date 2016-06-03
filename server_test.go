@@ -101,6 +101,9 @@ var _ = Describe("Server", func() {
 			close(done)
 		}()
 
+		// without this, the test randomly fails on Windows
+		time.Sleep(5 * time.Millisecond)
+
 		addr, err := net.ResolveUDPAddr("udp", "127.0.0.1:13370")
 		Expect(err).ToNot(HaveOccurred())
 		conn, err := net.DialUDP("udp", nil, addr)
@@ -131,7 +134,7 @@ var _ = Describe("Server", func() {
 	}, 3)
 
 	It("setups and responds with error on invalid frame", func(done Done) {
-		server, err := NewServer("127.0.0.1:13370", testdata.GetTLSConfig(), nil)
+		server, err := NewServer("127.0.0.1:13371", testdata.GetTLSConfig(), nil)
 		Expect(err).ToNot(HaveOccurred())
 		go func() {
 			defer GinkgoRecover()
@@ -140,7 +143,10 @@ var _ = Describe("Server", func() {
 			close(done)
 		}()
 
-		addr, err := net.ResolveUDPAddr("udp", "127.0.0.1:13370")
+		// without this, the test randomly fails on Windows
+		time.Sleep(5 * time.Millisecond)
+
+		addr, err := net.ResolveUDPAddr("udp", "127.0.0.1:13371")
 		Expect(err).ToNot(HaveOccurred())
 		conn, err := net.DialUDP("udp", nil, addr)
 		Expect(err).ToNot(HaveOccurred())
