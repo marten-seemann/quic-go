@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"crypto/tls"
 	"net"
+	"strings"
 	"sync"
 
 	"github.com/lucas-clemente/quic-go/crypto"
@@ -23,7 +24,9 @@ type packetHandler interface {
 // A Server of QUIC
 type Server struct {
 	addr *net.UDPAddr
-	conn *net.UDPConn
+
+	conn      *net.UDPConn
+	connMutex sync.Mutex
 
 	signer crypto.Signer
 	scfg   *handshake.ServerConfig
@@ -73,12 +76,17 @@ func (s *Server) ListenAndServe() error {
 	if err != nil {
 		return err
 	}
+	s.connMutex.Lock()
 	s.conn = conn
+	s.connMutex.Unlock()
 
 	for {
 		data := make([]byte, protocol.MaxPacketSize)
 		n, remoteAddr, err := conn.ReadFromUDP(data)
 		if err != nil {
+			if strings.HasSuffix(err.Error(), "use of closed network connection") {
+				return nil
+			}
 			return err
 		}
 		data = data[:n]
@@ -99,9 +107,16 @@ func (s *Server) Close() error {
 		}
 	}
 	s.sessionsMutex.Unlock()
+
+	s.connMutex.Lock()
+	defer s.connMutex.Unlock()
+
 	if s.conn == nil {
 		return nil
 	}
+	defer func() {
+		s.conn = nil
+	}()
 	return s.conn.Close()
 }
 
