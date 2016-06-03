@@ -5,6 +5,9 @@ os: Windows Server 2012 R2
 environment:
   GOPATH: c:\gopath
   CGO_ENABLED: 0
+  matrix:
+  - GOARCH=386
+  - GOARCH=amd64
 
 clone_folder: c:\gopath\src\github.com\marten-seemann\quic-go
 
