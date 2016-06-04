@@ -17,5 +17,13 @@ before_install:
   - export GOARCH=$TRAVIS_GOARCH
   - go env # for debugging
 
+install:
+  - go get github.com/gordonklaus/ineffassign
+
+script:
+  - go get -t ./...
+  - ineffassign .
+  - go test -v ./...
+
 after_success:
   - bash <(curl -s https://codecov.io/bash)
