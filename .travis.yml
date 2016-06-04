@@ -16,3 +16,6 @@ env:
 before_install:
   - export GOARCH=$TRAVIS_GOARCH
   - go env # for debugging
+
+after_success:
+  - bash <(curl -s https://codecov.io/bash)
