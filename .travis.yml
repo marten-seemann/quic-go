@@ -28,7 +28,7 @@ script:
   # - ineffassign .
   # - ginkgo -cover -r
   - go test -coverprofile=coverage.out -covermode=set
-  - cd frames && go test -coverprofile=coverage.txt -covermode=set
+  - cd frames && go test -coverprofile=coverage.out -covermode=set && cd ..
 
 after_success:
   # - cat quic-go.coverprofile > coverage.txt
