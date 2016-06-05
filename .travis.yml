@@ -15,6 +15,7 @@ env:
 # now actually set the GOARCH env variable to the value of the temporary variable set earlier
 before_install:
   # - export GOARCH=$TRAVIS_GOARCH
+  - go get golang.org/x/tools/cmd/cover
   - go env # for debugging
 
 install:
@@ -26,4 +27,4 @@ script:
   - go test -v ./...
 
 after_success:
-  - bash <(curl -s https://codecov.io/bash) -f coverprofile.txt
+  - bash <(curl -s https://codecov.io/bash)
