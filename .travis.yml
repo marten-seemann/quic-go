@@ -23,7 +23,7 @@ install:
 script:
   - go get -t ./...
   # - ineffassign .
-  - go test -coverprofile=coverage.txt -covermode=atomic -v ./...
+  - ginkgo -cover -r
 
 after_success:
   - bash <(curl -s https://codecov.io/bash)
