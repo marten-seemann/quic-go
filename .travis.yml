@@ -32,4 +32,4 @@ after_success:
   - cat quic-go.coverprofile > coverage.txt
   - cat */*.coverprofile >> coverage.txt
   - bash <(curl -s https://codecov.io/bash) -f coverage.txt
-  - goveralls -coverprofile=quic-go.coverprofile -service=travis-ci
+  - goveralls -coverprofile=coverage.txt -service=travis-ci
