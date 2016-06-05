@@ -1,5 +1,4 @@
 language: go
-
 go:
   - 1.6
   - 1.7beta1
@@ -9,7 +8,7 @@ go:
 # so set it to a temporary environment variable first
 env:
   - GIMME_OS=linux GIMME_ARCH=amd64
-  - GIMME_OS=linux GIMME_ARCH=x86
+  # - GIMME_OS=linux GIMME_ARCH=386
 
 # second part of the GOARCH workaround
 # now actually set the GOARCH env variable to the value of the temporary variable set earlier
