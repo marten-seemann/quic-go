@@ -1,1 +1,3 @@
-coverage: ignore: - "*/utils/*"
+coverage: 
+  ignore: 
+    - /utils/*
