@@ -31,7 +31,7 @@ install:
 script:
   - go get -t ./...
   # - ineffassign .
-  - ginkgo -cover -r
+  - ginkgo -cover -r -skipPackage integrationtests
 
 after_success:
   - cat quic-go.coverprofile > coverage.txt
