@@ -26,14 +26,10 @@ install:
 script:
   - go get -t ./...
   # - ineffassign .
-  # - ginkgo -cover -r
-  - go test -coverprofile=coverage.out -covermode=set
-  - cd frames && go test -coverprofile=coverage.out -covermode=set && cd ..
+  - ginkgo -cover -r
 
 after_success:
-  # - cat quic-go.coverprofile > coverage.txt
-  # - cat */*.coverprofile | grep -v "mode: atomic" >> coverage.txt
-  - .travis/after_success.sh
-
-  # - bash <(curl -s https://codecov.io/bash) -f coverage.txt
-  - goveralls -coverprofile=coverage.txt -service=travis-ci
+  - cat quic-go.coverprofile > coverage.txt
+  - cat */*.coverprofile >> coverage.txt
+  - bash <(curl -s https://codecov.io/bash) -f coverage.txt
+  - goveralls -coverprofile=quic-go.coverprofile -service=travis-ci
