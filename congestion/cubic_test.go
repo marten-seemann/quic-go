@@ -1,4 +1,4 @@
-package congestion_test
+package congestion
 
 import (
 	"time"

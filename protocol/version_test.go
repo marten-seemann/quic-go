@@ -1,4 +1,4 @@
-package protocol_test
+package protocol
 
 import (
 	"github.com/lucas-clemente/quic-go/protocol"
