@@ -11,7 +11,6 @@ import (
 
 const initialCongestionWindowPackets protocol.PacketNumber = 10
 const defaultWindowTCP = protocol.ByteCount(initialCongestionWindowPackets) * protocol.DefaultTCPMSS
-const renoBeta float32 = 0.7 // Reno backoff factor.
 
 type mockClock time.Time
 
