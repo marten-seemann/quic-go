@@ -1,3 +1,3 @@
 coverage: 
   ignore: 
-    - /utils/*
+    - /utils/byteinterval_linkedlist.go
