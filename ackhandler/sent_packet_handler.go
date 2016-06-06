@@ -198,7 +198,9 @@ func (h *sentPacketHandler) ReceivedAck(ackFrame *frames.AckFrame) error {
 	timeDelta := time.Now().Sub(h.packetHistory[h.LargestObserved].sendTime)
 	// TODO: Don't always update RTT
 	h.rttStats.UpdateRTT(timeDelta, ackFrame.DelayTime, time.Now())
-	utils.Debugf("\tEstimated RTT: %dms", h.rttStats.SmoothedRTT()/time.Millisecond)
+	if utils.Debug() {
+		utils.Debugf("\tEstimated RTT: %dms", h.rttStats.SmoothedRTT()/time.Millisecond)
+	}
 
 	var ackedPackets congestion.PacketVector
 	var lostPackets congestion.PacketVector
@@ -309,8 +311,13 @@ func (h *sentPacketHandler) maybeQueuePacketsRTO() {
 	for p := h.highestInOrderAckedPacketNumber + 1; p <= h.lastSentPacketNumber; p++ {
 		packet := h.packetHistory[p]
 		if packet != nil && !packet.Retransmitted {
-			h.queuePacketForRetransmission(packet)
+			packetsLost := congestion.PacketVector{congestion.PacketInfo{
+				Number: packet.PacketNumber,
+				Length: packet.Length,
+			}}
+			h.congestion.OnCongestionEvent(false, h.BytesInFlight(), nil, packetsLost)
 			h.congestion.OnRetransmissionTimeout(true)
+			h.queuePacketForRetransmission(packet)
 			return
 		}
 	}

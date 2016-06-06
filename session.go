@@ -165,17 +165,7 @@ func (s *Session) run() {
 		}
 
 		if err != nil {
-			switch err {
-			case ackhandler.ErrDuplicateOrOutOfOrderAck:
-				// Can happen e.g. when packets thought missing arrive late
-			case errRstStreamOnInvalidStream:
-				// Can happen when RST_STREAMs arrive early or late (?)
-				utils.Errorf("Ignoring error in session: %s", err.Error())
-			case errWindowUpdateOnClosedStream:
-				// Can happen when we already sent the last StreamFrame with the FinBit, but the client already sent a WindowUpdate for this Stream
-			default:
-				s.Close(err)
-			}
+			s.Close(err)
 		}
 
 		if err := s.maybeSendPacket(); err != nil {
@@ -226,7 +216,9 @@ func (s *Session) handlePacketImpl(remoteAddr interface{}, hdr *publicHeader, da
 		hdr.PacketNumber,
 	)
 	s.lastRcvdPacketNumber = hdr.PacketNumber
-	utils.Debugf("<- Reading packet 0x%x (%d bytes) for connection %x", hdr.PacketNumber, r.Size(), hdr.ConnectionID)
+	if utils.Debug() {
+		utils.Debugf("<- Reading packet 0x%x (%d bytes) for connection %x", hdr.PacketNumber, r.Size()+int64(len(hdr.Raw)), hdr.ConnectionID)
+	}
 
 	// TODO: Only do this after authenticating
 	s.conn.setCurrentRemoteAddr(remoteAddr)
@@ -238,39 +230,47 @@ func (s *Session) handlePacketImpl(remoteAddr interface{}, hdr *publicHeader, da
 
 	s.receivedPacketHandler.ReceivedPacket(hdr.PacketNumber, packet.entropyBit)
 
-	for _, ff := range packet.frames {
+	return s.handleFrames(packet.frames)
+}
+
+func (s *Session) handleFrames(fs []frames.Frame) error {
+	for _, ff := range fs {
 		var err error
+		frames.LogFrame(ff, false)
 		switch frame := ff.(type) {
 		case *frames.StreamFrame:
-			utils.Debugf("\t<- &frames.StreamFrame{StreamID: %d, FinBit: %t, Offset: 0x%x, Data length: 0x%x, Offset + Data length: 0x%x}", frame.StreamID, frame.FinBit, frame.Offset, frame.DataLen(), frame.Offset+frame.DataLen())
 			err = s.handleStreamFrame(frame)
 			// TODO: send RstStreamFrame
 		case *frames.AckFrame:
 			err = s.handleAckFrame(frame)
 		case *frames.ConnectionCloseFrame:
-			utils.Debugf("\t<- %#v", frame)
 			s.closeImpl(qerr.Error(frame.ErrorCode, frame.ReasonPhrase), true)
 		case *frames.GoawayFrame:
-			utils.Debugf("\t<- %#v", frame)
 			err = errors.New("unimplemented: handling GOAWAY frames")
 		case *frames.StopWaitingFrame:
-			utils.Debugf("\t<- %#v", frame)
 			err = s.receivedPacketHandler.ReceivedStopWaiting(frame)
 		case *frames.RstStreamFrame:
 			err = s.handleRstStreamFrame(frame)
-			utils.Debugf("\t<- %#v", frame)
 		case *frames.WindowUpdateFrame:
-			utils.Debugf("\t<- %#v", frame)
 			err = s.handleWindowUpdateFrame(frame)
 		case *frames.BlockedFrame:
-			utils.Infof("BLOCKED frame received for connection %x stream %d", s.connectionID, frame.StreamID)
 		case *frames.PingFrame:
-			utils.Debugf("\t<- %#v", frame)
 		default:
 			return errors.New("Session BUG: unexpected frame type")
 		}
+
 		if err != nil {
-			return err
+			switch err {
+			case ackhandler.ErrDuplicateOrOutOfOrderAck:
+			// Can happen e.g. when packets thought missing arrive late
+			case errRstStreamOnInvalidStream:
+				// Can happen when RST_STREAMs arrive early or late (?)
+				utils.Errorf("Ignoring error in session: %s", err.Error())
+			case errWindowUpdateOnClosedStream:
+				// Can happen when we already sent the last StreamFrame with the FinBit, but the client already sent a WindowUpdate for this Stream
+			default:
+				return err
+			}
 		}
 	}
 	return nil
@@ -287,23 +287,26 @@ func (s *Session) handlePacket(remoteAddr interface{}, hdr *publicHeader, data [
 }
 
 func (s *Session) handleStreamFrame(frame *frames.StreamFrame) error {
-	s.streamsMutex.RLock()
+	s.streamsMutex.Lock()
+	defer s.streamsMutex.Unlock()
 	str, streamExists := s.streams[frame.StreamID]
-	s.streamsMutex.RUnlock()
 
+	var err error
 	if !streamExists {
 		if !s.isValidStreamID(frame.StreamID) {
 			return qerr.InvalidStreamID
 		}
 
-		ss, _ := s.OpenStream(frame.StreamID)
-		str = ss.(*stream)
+		str, err = s.newStreamImpl(frame.StreamID)
+		if err != nil {
+			return err
+		}
 	}
 	if str == nil {
 		// Stream is closed, ignore
 		return nil
 	}
-	err := str.AddStreamFrame(frame)
+	err = str.AddStreamFrame(frame)
 	if err != nil {
 		return err
 	}
@@ -367,7 +370,6 @@ func (s *Session) handleAckFrame(frame *frames.AckFrame) error {
 	if err := s.sentPacketHandler.ReceivedAck(frame); err != nil {
 		return err
 	}
-	utils.Debugf("\t<- %#v", frame)
 	return nil
 }
 
@@ -481,9 +483,11 @@ func (s *Session) sendPacket() error {
 	var controlFrames []frames.Frame
 
 	// check for retransmissions first
-	// TODO: handle multiple packets retransmissions
-	retransmitPacket := s.sentPacketHandler.DequeuePacketForRetransmission()
-	if retransmitPacket != nil {
+	for {
+		retransmitPacket := s.sentPacketHandler.DequeuePacketForRetransmission()
+		if retransmitPacket == nil {
+			break
+		}
 		utils.Debugf("\tDequeueing retransmission for packet 0x%x", retransmitPacket.PacketNumber)
 		s.stopWaitingManager.RegisterPacketForRetransmission(retransmitPacket)
 		// resend the frames that were in the packet
@@ -560,12 +564,10 @@ func (s *Session) logPacket(packet *packedPacket) {
 		// We don't need to allocate the slices for calling the format functions
 		return
 	}
-	utils.Debugf("-> Sending packet 0x%x (%d bytes)", packet.number, len(packet.raw))
-	for _, frame := range packet.frames {
-		if streamFrame, isStreamFrame := frame.(*frames.StreamFrame); isStreamFrame {
-			utils.Debugf("\t-> &frames.StreamFrame{StreamID: %d, FinBit: %t, Offset: 0x%x, Data length: 0x%x, Offset + Data length: 0x%x}", streamFrame.StreamID, streamFrame.FinBit, streamFrame.Offset, streamFrame.DataLen(), streamFrame.Offset+streamFrame.DataLen())
-		} else {
-			utils.Debugf("\t-> %#v", frame)
+	if utils.Debug() {
+		utils.Debugf("-> Sending packet 0x%x (%d bytes)", packet.number, len(packet.raw))
+		for _, frame := range packet.frames {
+			frames.LogFrame(frame, true)
 		}
 	}
 }
@@ -607,17 +609,17 @@ func (s *Session) GetOrOpenStream(id protocol.StreamID) (utils.Stream, error) {
 // The streamsMutex is locked by OpenStream or GetOrOpenStream before calling this function.
 func (s *Session) newStreamImpl(id protocol.StreamID) (*stream, error) {
 	maxAllowedStreams := uint32(protocol.MaxStreamsMultiplier * float32(s.connectionParametersManager.GetMaxStreamsPerConnection()))
-	if s.openStreamsCount >= maxAllowedStreams {
+	if atomic.LoadUint32(&s.openStreamsCount) >= maxAllowedStreams {
 		return nil, qerr.TooManyOpenStreams
+	}
+	if _, ok := s.streams[id]; ok {
+		return nil, fmt.Errorf("Session: stream with ID %d already exists", id)
 	}
 	stream, err := newStream(s, s.connectionParametersManager, s.flowController, id)
 	if err != nil {
 		return nil, err
 	}
-	if s.streams[id] != nil {
-		return nil, fmt.Errorf("Session: stream with ID %d already exists", id)
-	}
-	s.openStreamsCount++
+	atomic.AddUint32(&s.openStreamsCount, 1)
 	s.streams[id] = stream
 	return stream, nil
 }
@@ -638,7 +640,7 @@ func (s *Session) garbageCollectStreams() {
 			s.windowUpdateManager.RemoveStream(k)
 		}
 		if v.finished() {
-			s.openStreamsCount--
+			atomic.AddUint32(&s.openStreamsCount, ^uint32(0)) // decrement
 			s.streams[k] = nil
 		}
 	}
