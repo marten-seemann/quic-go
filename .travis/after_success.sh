@@ -2,7 +2,6 @@
 
 set -e
 
-cat coverage.out > coverage.txt
-cat frames/coverage.out
-cat frames/coverage.out | grep -v "mode: set" >> coverage.txt
-cat coverage.txt
+cat quic-go.coverprofile > coverage.txt
+cat */*.coverprofile >> coverage.txt
+bash <(curl -s https://codecov.io/bash) -f coverage.txt

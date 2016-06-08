@@ -28,11 +28,7 @@ before_install:
   - go env # for debugging
 
 script:
-  - go get -t ./...
-  - if [ ${TESTMODE} = "unit" ]; ginkgo -r --cover --randomizeAllSpecs --randomizeSuites --trace --progress --skipPackage integrationtest; fi
-  - if [ ${TESTMODE} = "unit" ]; else ginkgo -r --randomizeAllSpecs --randomizeSuites --trace --progress;
-
+  - .travis/script.sh
+  
 after_success:
-  - cat quic-go.coverprofile > coverage.txt
-  - cat */*.coverprofile >> coverage.txt
-  - bash <(curl -s https://codecov.io/bash) -f coverage.txt
+  - .travis/after_success.sh
