@@ -14,9 +14,9 @@ go:
 # so set it to a temporary environment variable first
 env:
   - TRAVIS_GOARCH=amd64 TESTMODE=unit
-  - TRAVIS_GOARCH=amd64 TESTMODE=integration
+  - TRAVIS_GOARCH=amd64 TESTMODE=integration REPITITIONS=10
   - TRAVIS_GOARCH=386 TESTMODE=unit
-  - TRAVIS_GOARCH=386 TESTMODE=integration
+  - TRAVIS_GOARCH=386 TESTMODE=integration REPITITIONS=10
 
 # second part of the GOARCH workaround
 # now actually set the GOARCH env variable to the value of the temporary variable set earlier
@@ -29,6 +29,6 @@ before_install:
 
 script:
   - .travis/script.sh
-  
+
 after_success:
   - .travis/after_success.sh
