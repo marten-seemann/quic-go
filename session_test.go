@@ -549,6 +549,7 @@ var _ = Describe("Session", func() {
 
 			FIt("sends out two small frames that are written to long after one another into two packet", func() {
 				go session.run()
+				time.Sleep(10 * time.Millisecond)
 
 				fmt.Println("first stream frame")
 				session.queueStreamFrame(&frames.StreamFrame{
