@@ -1,6 +1,6 @@
-language: go
-
 sudo: required
+
+language: go
 
 services:
   - docker
@@ -13,25 +13,21 @@ go:
 # setting the GOARCH directly doesn't work, since the value will be overwritten later
 # so set it to a temporary environment variable first
 env:
-  - GIMME_OS=linux GIMME_ARCH=amd64
-  # - GIMME_OS=linux GIMME_ARCH=386
+  - TRAVIS_GOARCH=amd64
+  - TRAVIS_GOARCH=386
 
 # second part of the GOARCH workaround
 # now actually set the GOARCH env variable to the value of the temporary variable set earlier
 before_install:
-  # - export GOARCH=$TRAVIS_GOARCH
   - go get golang.org/x/tools/cmd/cover
   - go get github.com/onsi/ginkgo/ginkgo
   - go get github.com/onsi/gomega
+  - export GOARCH=$TRAVIS_GOARCH
   - go env # for debugging
-
-install:
-  - go get github.com/gordonklaus/ineffassign
 
 script:
   - go get -t ./...
-  # - ineffassign .
-  - ginkgo -cover -r -skipPackage integrationtests
+  - ginkgo -r --cover --randomizeAllSpecs --randomizeSuites --trace --progress
 
 after_success:
   - cat quic-go.coverprofile > coverage.txt

@@ -34,12 +34,12 @@ var _ = Describe("Integrationtests", func() {
 	})
 
 	It("stops the UDPProxy", func() {
-		proxy, err := NewUDPProxy(13370, "localhost", serverPort, nil, nil)
+		proxy, err := NewUDPProxy(13371, "localhost", serverPort, nil, nil)
 		Expect(err).ToNot(HaveOccurred())
 		proxy.Stop()
 
 		// check that port 13370 is not in use anymore
-		addr, err := net.ResolveUDPAddr("udp", ":13370")
+		addr, err := net.ResolveUDPAddr("udp", ":13371")
 		Expect(err).ToNot(HaveOccurred())
 		ln, err := net.ListenUDP("udp", addr)
 		Expect(err).ToNot(HaveOccurred())
@@ -114,13 +114,13 @@ var _ = Describe("Integrationtests", func() {
 				var key string
 				var conn *connection
 				for key, conn = range proxy.clientDict {
-					Expect(conn.incomingPacketCounter).To(Equal(packetNumber(1)))
+					Expect(conn.incomingPacketCounter).To(Equal(PacketNumber(1)))
 				}
 				_, err = clientConn.Write([]byte("decafbad"))
 				Expect(err).ToNot(HaveOccurred())
 				time.Sleep(time.Millisecond)
 				Expect(proxy.clientDict).To(HaveLen(1))
-				Expect(proxy.clientDict[key].incomingPacketCounter).To(Equal(packetNumber(2)))
+				Expect(proxy.clientDict[key].incomingPacketCounter).To(Equal(PacketNumber(2)))
 				Expect(serverReceivedPackets).To(HaveLen(2))
 				Expect(serverReceivedPackets[0]).To(Equal(packetData("foobar")))
 				Expect(serverReceivedPackets[1]).To(Equal(packetData("decafbad")))
@@ -134,13 +134,13 @@ var _ = Describe("Integrationtests", func() {
 				var key string
 				var conn *connection
 				for key, conn = range proxy.clientDict {
-					Expect(conn.outgoingPacketCounter).To(Equal(packetNumber(1)))
+					Expect(conn.outgoingPacketCounter).To(Equal(PacketNumber(1)))
 				}
 				_, err = clientConn.Write([]byte("decafbad"))
 				Expect(err).ToNot(HaveOccurred())
 				time.Sleep(time.Millisecond)
 				Expect(proxy.clientDict).To(HaveLen(1))
-				Expect(proxy.clientDict[key].outgoingPacketCounter).To(Equal(packetNumber(2)))
+				Expect(proxy.clientDict[key].outgoingPacketCounter).To(Equal(PacketNumber(2)))
 
 				var clientReceivedPackets []packetData
 
@@ -170,7 +170,7 @@ var _ = Describe("Integrationtests", func() {
 
 		Context("Drop Callbacks", func() {
 			It("drops incoming packets", func() {
-				dropper := func(p packetNumber) bool {
+				dropper := func(p PacketNumber) bool {
 					return p%2 == 0
 				}
 
@@ -190,7 +190,7 @@ var _ = Describe("Integrationtests", func() {
 			})
 
 			It("drops outgoing packets", func() {
-				dropper := func(p packetNumber) bool {
+				dropper := func(p PacketNumber) bool {
 					return p%2 == 0
 				}
 

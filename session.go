@@ -336,6 +336,7 @@ func (s *Session) handleWindowUpdateFrame(frame *frames.WindowUpdateFrame) error
 		s.streamsMutex.RUnlock()
 	} else {
 		s.streamsMutex.RLock()
+		defer s.streamsMutex.RUnlock()
 		stream, streamExists := s.streams[frame.StreamID]
 		if !streamExists {
 			return errWindowUpdateOnInvalidStream
@@ -343,7 +344,6 @@ func (s *Session) handleWindowUpdateFrame(frame *frames.WindowUpdateFrame) error
 		if stream == nil {
 			return errWindowUpdateOnClosedStream
 		}
-		s.streamsMutex.RUnlock()
 
 		updated := stream.UpdateSendFlowControlWindow(frame.ByteOffset)
 		if updated {
@@ -421,14 +421,14 @@ func (s *Session) maybeSendPacket() error {
 		return s.sendPacket()
 	}
 
-	if !s.sentPacketHandler.CongestionAllowsSending() {
-		return nil
-	}
-
 	// always send out retransmissions immediately. No need to check the size of the packet
 	// in the edge cases where a belated ACK was received for a packet that was already queued for retransmission, we might send out a small packet. However, this shouldn't happen very often
 	if s.sentPacketHandler.ProbablyHasPacketForRetransmission() {
 		return s.sendPacket()
+	}
+
+	if !s.sentPacketHandler.CongestionAllowsSending() {
+		return nil
 	}
 
 	var maxPacketSize protocol.ByteCount // the maximum size of a packet we could send out at this moment
@@ -610,6 +610,7 @@ func (s *Session) GetOrOpenStream(id protocol.StreamID) (utils.Stream, error) {
 func (s *Session) newStreamImpl(id protocol.StreamID) (*stream, error) {
 	maxAllowedStreams := uint32(protocol.MaxStreamsMultiplier * float32(s.connectionParametersManager.GetMaxStreamsPerConnection()))
 	if atomic.LoadUint32(&s.openStreamsCount) >= maxAllowedStreams {
+		go s.Close(qerr.TooManyOpenStreams)
 		return nil, qerr.TooManyOpenStreams
 	}
 	if _, ok := s.streams[id]; ok {
@@ -640,6 +641,7 @@ func (s *Session) garbageCollectStreams() {
 			s.windowUpdateManager.RemoveStream(k)
 		}
 		if v.finished() {
+			utils.Debugf("Garbage-collecting stream %d", k)
 			atomic.AddUint32(&s.openStreamsCount, ^uint32(0)) // decrement
 			s.streams[k] = nil
 		}
