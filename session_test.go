@@ -527,7 +527,7 @@ var _ = Describe("Session", func() {
 					StreamID: 5,
 					Data:     []byte("foobar2"),
 				})
-				time.Sleep(10 * time.Millisecond)
+				time.Sleep(10 * protocol.SmallPacketSendDelay)
 				Expect(conn.written).To(HaveLen(1))
 			})
 
@@ -542,7 +542,7 @@ var _ = Describe("Session", func() {
 					StreamID: 5,
 					Data:     bytes.Repeat([]byte{'f'}, int(protocol.SmallPacketPayloadSizeThreshold+50)),
 				})
-				time.Sleep(10 * time.Millisecond)
+				time.Sleep(10 * protocol.SmallPacketSendDelay)
 				Expect(conn.written).To(HaveLen(2))
 			})
 
@@ -558,7 +558,7 @@ var _ = Describe("Session", func() {
 					StreamID: 5,
 					Data:     []byte("foobar2"),
 				})
-				time.Sleep(10 * time.Millisecond)
+				time.Sleep(10 * protocol.SmallPacketSendDelay)
 				Expect(conn.written).To(HaveLen(2))
 			})
 
