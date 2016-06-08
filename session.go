@@ -417,7 +417,11 @@ func (s *Session) closeStreamsWithError(err error) {
 
 // TODO: try sending more than one packet
 func (s *Session) maybeSendPacket() error {
+	fmt.Printf("smallPacketDelayedOccurranceTime: %#v\n", s.smallPacketDelayedOccurranceTime)
+	fmt.Printf("protocol.SmallPacketSendDelay: %#v μs\n", protocol.SmallPacketSendDelay/time.Microsecond)
+	fmt.Printf("time.Now().Sub(s.smallPacketDelayedOccurranceTime): %#v μs\n", time.Now().Sub(s.smallPacketDelayedOccurranceTime)/time.Microsecond)
 	if !s.smallPacketDelayedOccurranceTime.IsZero() && time.Now().Sub(s.smallPacketDelayedOccurranceTime) > protocol.SmallPacketSendDelay {
+		fmt.Println("call sendPacket")
 		return s.sendPacket()
 	}
 

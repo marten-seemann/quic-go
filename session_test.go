@@ -3,6 +3,7 @@ package quic
 import (
 	"bytes"
 	"errors"
+	"fmt"
 	"io"
 	"net"
 	"runtime"
@@ -546,14 +547,16 @@ var _ = Describe("Session", func() {
 				Expect(conn.written).To(HaveLen(2))
 			})
 
-			It("sends out two small frames that are written to long after one another into two packet", func() {
+			FIt("sends out two small frames that are written to long after one another into two packet", func() {
 				go session.run()
 
+				fmt.Println("first stream frame")
 				session.queueStreamFrame(&frames.StreamFrame{
 					StreamID: 5,
 					Data:     []byte("foobar1"),
 				})
 				time.Sleep(10 * protocol.SmallPacketSendDelay)
+				fmt.Println("second stream frame")
 				session.queueStreamFrame(&frames.StreamFrame{
 					StreamID: 5,
 					Data:     []byte("foobar2"),
