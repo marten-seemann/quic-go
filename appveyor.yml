@@ -23,7 +23,8 @@ install:
   - go get -v -t ./...
 
 build_script:
-  - ginkgo -noColor -skipPackage integrationtests
+  - go test ./... --ginkgo.noColor
+  # - ginkgo -noColor -skipPackage integrationtests
 
 test: off
 
