@@ -179,20 +179,25 @@ func (s *Session) run() {
 }
 
 func (s *Session) maybeResetTimer() {
+	fmt.Println("maybeResetTimer")
 	nextDeadline := s.lastNetworkActivityTime.Add(s.connectionParametersManager.GetIdleConnectionStateLifetime())
 
 	if !s.smallPacketDelayedOccurranceTime.IsZero() {
 		// nextDeadline = utils.MinDuration(firstTimeout, s.smallPacketDelayedOccurranceTime.Add(protocol.SmallPacketSendDelay).Sub(now))
 		nextDeadline = utils.MinTime(nextDeadline, s.smallPacketDelayedOccurranceTime.Add(protocol.SmallPacketSendDelay))
+		fmt.Println("\tsetting nextDeadline")
 	}
 	if rtoTime := s.sentPacketHandler.TimeOfFirstRTO(); !rtoTime.IsZero() {
 		nextDeadline = utils.MinTime(nextDeadline, rtoTime)
 	}
 
 	if nextDeadline.Equal(s.currentDeadline) {
+		fmt.Println("\tnextDeadline == currentDeadline")
 		// No need to reset the timer
 		return
 	}
+
+	fmt.Println("\tresetting Timer")
 
 	// We need to drain the timer if the value from its channel was not read yet.
 	// See https://groups.google.com/forum/#!topic/golang-dev/c9UUfASVPoU
@@ -417,11 +422,12 @@ func (s *Session) closeStreamsWithError(err error) {
 
 // TODO: try sending more than one packet
 func (s *Session) maybeSendPacket() error {
-	fmt.Printf("smallPacketDelayedOccurranceTime: %#v\n", s.smallPacketDelayedOccurranceTime)
-	fmt.Printf("protocol.SmallPacketSendDelay: %#v μs\n", protocol.SmallPacketSendDelay/time.Microsecond)
-	fmt.Printf("time.Now().Sub(s.smallPacketDelayedOccurranceTime): %#v μs\n", time.Now().Sub(s.smallPacketDelayedOccurranceTime)/time.Microsecond)
+	fmt.Println("maybeSendPacket")
+	fmt.Printf("\tsmallPacketDelayedOccurranceTime: %#v\n", s.smallPacketDelayedOccurranceTime)
+	fmt.Printf("\tprotocol.SmallPacketSendDelay: %#v μs\n", protocol.SmallPacketSendDelay/time.Microsecond)
+	fmt.Printf("\ttime.Now().Sub(s.smallPacketDelayedOccurranceTime): %#v μs\n", time.Now().Sub(s.smallPacketDelayedOccurranceTime)/time.Microsecond)
 	if !s.smallPacketDelayedOccurranceTime.IsZero() && time.Now().Sub(s.smallPacketDelayedOccurranceTime) > protocol.SmallPacketSendDelay {
-		fmt.Println("call sendPacket")
+		fmt.Println("\tcall sendPacket")
 		return s.sendPacket()
 	}
 
