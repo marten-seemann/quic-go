@@ -74,29 +74,6 @@ var _ = Describe("Drop Proxy", func() {
 					runDropTest(dropper, nil, version)
 				})
 			})
-
-			Context("dropping 5 packets in a row, letting 15 packets pass, after the crypto handshake", func() {
-				dropper := func(p PacketNumber) bool {
-					if p <= 5 { // don't interfere with the crypto handshake
-						return false
-					}
-					// drop 5 packets, let 15 packets pass. repeat
-					for i := 0; i < 5; i++ {
-						if int(p%20) == i {
-							return true
-						}
-					}
-					return false
-				}
-
-				It("gets a file when many consecutive outgoing packets are dropped", func() {
-					runDropTest(nil, dropper, version)
-				})
-
-				It("gets a file when many consecutive incoming packets are dropped", func() {
-					runDropTest(dropper, nil, version)
-				})
-			})
 		})
 	}
 })
