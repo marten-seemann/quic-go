@@ -197,13 +197,12 @@ func (s *Session) maybeResetTimer() {
 		return
 	}
 
-	fmt.Println("\tresetting Timer")
-
 	// We need to drain the timer if the value from its channel was not read yet.
 	// See https://groups.google.com/forum/#!topic/golang-dev/c9UUfASVPoU
 	if !s.timer.Stop() && !s.timerRead {
 		<-s.timer.C
 	}
+	fmt.Printf("\tresetting Timer. Will fire in %#v μs\n", nextDeadline.Sub(time.Now())/time.Microsecond)
 	s.timer.Reset(nextDeadline.Sub(time.Now()))
 
 	s.timerRead = false
