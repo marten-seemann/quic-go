@@ -15,12 +15,14 @@ install:
   - echo %PATH%
   - echo %GOPATH%
   - git submodule update --init --recursive
+  - go get github.com/onsi/ginkgo/ginkgo
+  - go get github.com/onsi/gomega
   - go version
   - go env
   - go get -v -t ./...
 
 build_script:
-  - go test ./... --ginkgo.noColor
+  - ginkgo -noColor -skipPackage integrationtests
 
 test: off
 
