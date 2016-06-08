@@ -12,6 +12,7 @@ environment:
 clone_folder: c:\gopath\src\github.com\marten-seemann\quic-go
 
 install:
+  - set PATH=%PATH%;%GOPATH%\bin
   - echo %PATH%
   - echo %GOPATH%
   - git submodule update --init --recursive
