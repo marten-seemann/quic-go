@@ -3,7 +3,6 @@ package quic
 import (
 	"bytes"
 	"errors"
-	"fmt"
 	"io"
 	"net"
 	"runtime"
@@ -13,14 +12,14 @@ import (
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 
-	"github.com/marten-seemann/quic-go/ackhandler"
-	"github.com/marten-seemann/quic-go/crypto"
-	"github.com/marten-seemann/quic-go/frames"
-	"github.com/marten-seemann/quic-go/handshake"
-	"github.com/marten-seemann/quic-go/protocol"
-	"github.com/marten-seemann/quic-go/qerr"
-	"github.com/marten-seemann/quic-go/testdata"
-	"github.com/marten-seemann/quic-go/utils"
+	"github.com/lucas-clemente/quic-go/ackhandler"
+	"github.com/lucas-clemente/quic-go/crypto"
+	"github.com/lucas-clemente/quic-go/frames"
+	"github.com/lucas-clemente/quic-go/handshake"
+	"github.com/lucas-clemente/quic-go/protocol"
+	"github.com/lucas-clemente/quic-go/qerr"
+	"github.com/lucas-clemente/quic-go/testdata"
+	"github.com/lucas-clemente/quic-go/utils"
 )
 
 type mockConnection struct {
@@ -550,13 +549,11 @@ var _ = Describe("Session", func() {
 			It("sends out two small frames that are written to long after one another into two packet", func() {
 				go session.run()
 
-				fmt.Println("first stream frame")
 				session.queueStreamFrame(&frames.StreamFrame{
 					StreamID: 5,
 					Data:     []byte("foobar1"),
 				})
 				time.Sleep(10 * protocol.SmallPacketSendDelay)
-				fmt.Println("second stream frame")
 				session.queueStreamFrame(&frames.StreamFrame{
 					StreamID: 5,
 					Data:     []byte("foobar2"),

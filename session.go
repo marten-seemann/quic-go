@@ -179,20 +179,17 @@ func (s *Session) run() {
 }
 
 func (s *Session) maybeResetTimer() {
-	fmt.Println("maybeResetTimer")
 	nextDeadline := s.lastNetworkActivityTime.Add(s.connectionParametersManager.GetIdleConnectionStateLifetime())
 
 	if !s.smallPacketDelayedOccurranceTime.IsZero() {
 		// nextDeadline = utils.MinDuration(firstTimeout, s.smallPacketDelayedOccurranceTime.Add(protocol.SmallPacketSendDelay).Sub(now))
 		nextDeadline = utils.MinTime(nextDeadline, s.smallPacketDelayedOccurranceTime.Add(protocol.SmallPacketSendDelay))
-		fmt.Println("\tsetting nextDeadline")
 	}
 	if rtoTime := s.sentPacketHandler.TimeOfFirstRTO(); !rtoTime.IsZero() {
 		nextDeadline = utils.MinTime(nextDeadline, rtoTime)
 	}
 
 	if nextDeadline.Equal(s.currentDeadline) {
-		fmt.Println("\tnextDeadline == currentDeadline")
 		// No need to reset the timer
 		return
 	}
@@ -202,7 +199,6 @@ func (s *Session) maybeResetTimer() {
 	if !s.timer.Stop() && !s.timerRead {
 		<-s.timer.C
 	}
-	fmt.Printf("\tresetting Timer. Will fire in %#v μs\n", nextDeadline.Sub(time.Now())/time.Microsecond)
 	s.timer.Reset(nextDeadline.Sub(time.Now()))
 
 	s.timerRead = false
@@ -421,12 +417,7 @@ func (s *Session) closeStreamsWithError(err error) {
 
 // TODO: try sending more than one packet
 func (s *Session) maybeSendPacket() error {
-	fmt.Println("maybeSendPacket")
-	fmt.Printf("\tsmallPacketDelayedOccurranceTime: %#v\n", s.smallPacketDelayedOccurranceTime)
-	fmt.Printf("\tprotocol.SmallPacketSendDelay: %#v μs\n", protocol.SmallPacketSendDelay/time.Microsecond)
-	fmt.Printf("\ttime.Now().Sub(s.smallPacketDelayedOccurranceTime): %#v μs\n", time.Now().Sub(s.smallPacketDelayedOccurranceTime)/time.Microsecond)
 	if !s.smallPacketDelayedOccurranceTime.IsZero() && time.Now().Sub(s.smallPacketDelayedOccurranceTime) > protocol.SmallPacketSendDelay {
-		fmt.Println("\tcall sendPacket")
 		return s.sendPacket()
 	}
 
