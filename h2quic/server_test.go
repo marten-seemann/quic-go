@@ -239,7 +239,7 @@ var _ = Describe("H2 server", func() {
 			time.Sleep(10 * time.Millisecond)
 			err := s.Close()
 			Expect(err).NotTo(HaveOccurred())
-		}, 0.5)
+		}, 3)
 
 		It("may only be called once", func(done Done) {
 			go func() {
