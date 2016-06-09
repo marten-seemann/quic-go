@@ -1,8 +1,6 @@
 version: "{build}"
 
-os:
-  - Windows Server 2012 R2
-  - Visual Studio 2015
+os: Windows Server 2012 R2
 
 environment:
   GOPATH: c:\gopath
@@ -28,9 +26,10 @@ install:
   - go get -v -t ./...
 
 build_script:
-  - rm -r integrationtests
-  - go test ./... --ginkgo.noColor
-  # - ginkgo -noColor -skipPackage integrationtests
+  # - rm -r integrationtests
+  # - go test ./... --ginkgo.noColor
+  - echo %PATH%
+  - ginkgo -noColor -skipPackage integrationtests
 
 test: off
 
