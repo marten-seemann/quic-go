@@ -9,8 +9,6 @@ environment:
     - GOARCH: 386
     - GOARCH: amd64
 
-clone_folder: c:\go\src\github.com\marten-seemann\quic-go
-
 install:
   - rmdir c:\go /s /q
   - appveyor DownloadFile https://storage.googleapis.com/golang/go1.7beta1.windows-amd64.zip
