@@ -29,7 +29,7 @@ build_script:
   # - rm -r integrationtests
   # - go test ./... --ginkgo.noColor
   - echo %PATH%
-  - ginkgo -noColor -skipPackage integrationtests
+  - ginkgo -r --cover --randomizeAllSpecs --randomizeSuites --trace --progress --skipPackage integrationtests
 
 test: off
 
