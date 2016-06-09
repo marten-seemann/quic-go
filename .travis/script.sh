@@ -8,9 +8,5 @@ if [ ${TESTMODE} == "unit" ]; then
 fi
 
 if [ ${TESTMODE} == "integration" ]; then
-  COUNTER=0
-  while [  $COUNTER -lt $REPITITIONS ]; do
-     ginkgo -r --randomizeAllSpecs --randomizeSuites --trace --progress integrationtests
-     let COUNTER=COUNTER+1
-  done
+  ginkgo -r --randomizeAllSpecs --randomizeSuites --trace --progress integrationtests
 fi
