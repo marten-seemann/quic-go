@@ -1,0 +1,22 @@
+version: 2
+jobs:
+  build-go1.10:
+    docker:
+      - image: circleci/golang:1.10.2-stretch-browsers
+    working_directory: /go/src/github.com/marten-seemann/circle-ci-test
+    steps:
+      - checkout
+      - run: ./.circleci/script.sh
+  build-go1.9:
+    docker:
+      - image: circleci/golang:1.9.6-stretch-browsers
+    working_directory: /go/src/github.com/marten-seemann/circle-ci-test
+    steps:
+      - checkout
+      - run: ./.circleci/script.sh
+workflows:
+  version: 2
+  build:
+    jobs:
+      - build-go1.10
+      - build-go1.9
