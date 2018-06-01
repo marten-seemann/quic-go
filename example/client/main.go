@@ -7,10 +7,10 @@ import (
 	"net/http"
 	"sync"
 
-	quic "github.com/lucas-clemente/quic-go"
-	"github.com/lucas-clemente/quic-go/h2quic"
-	"github.com/lucas-clemente/quic-go/internal/protocol"
-	"github.com/lucas-clemente/quic-go/internal/utils"
+	quic "github.com/marten-seemann/quic-go"
+	"github.com/marten-seemann/quic-go/h2quic"
+	"github.com/marten-seemann/quic-go/internal/protocol"
+	"github.com/marten-seemann/quic-go/internal/utils"
 )
 
 func main() {

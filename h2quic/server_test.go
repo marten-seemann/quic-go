@@ -16,11 +16,11 @@ import (
 	"golang.org/x/net/http2"
 	"golang.org/x/net/http2/hpack"
 
-	quic "github.com/lucas-clemente/quic-go"
-	"github.com/lucas-clemente/quic-go/internal/protocol"
-	"github.com/lucas-clemente/quic-go/internal/testdata"
-	"github.com/lucas-clemente/quic-go/internal/utils"
-	"github.com/lucas-clemente/quic-go/qerr"
+	quic "github.com/marten-seemann/quic-go"
+	"github.com/marten-seemann/quic-go/internal/protocol"
+	"github.com/marten-seemann/quic-go/internal/testdata"
+	"github.com/marten-seemann/quic-go/internal/utils"
+	"github.com/marten-seemann/quic-go/qerr"
 
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"

@@ -7,9 +7,9 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/lucas-clemente/quic-go/internal/protocol"
-	"github.com/lucas-clemente/quic-go/internal/utils"
-	"github.com/lucas-clemente/quic-go/qerr"
+	"github.com/marten-seemann/quic-go/internal/protocol"
+	"github.com/marten-seemann/quic-go/internal/utils"
+	"github.com/marten-seemann/quic-go/qerr"
 )
 
 // errMalformedTag is returned when the tag value cannot be read

@@ -2,10 +2,10 @@
 
 <img src="docs/quic.png" width=303 height=124>
 
-[![Godoc Reference](https://img.shields.io/badge/godoc-reference-blue.svg?style=flat-square)](https://godoc.org/github.com/lucas-clemente/quic-go)
-[![Linux Build Status](https://img.shields.io/travis/lucas-clemente/quic-go/master.svg?style=flat-square&label=linux+build)](https://travis-ci.org/lucas-clemente/quic-go)
-[![Windows Build Status](https://img.shields.io/appveyor/ci/lucas-clemente/quic-go/master.svg?style=flat-square&label=windows+build)](https://ci.appveyor.com/project/lucas-clemente/quic-go/branch/master)
-[![Code Coverage](https://img.shields.io/codecov/c/github/lucas-clemente/quic-go/master.svg?style=flat-square)](https://codecov.io/gh/lucas-clemente/quic-go/)
+[![Godoc Reference](https://img.shields.io/badge/godoc-reference-blue.svg?style=flat-square)](https://godoc.org/github.com/marten-seemann/quic-go)
+[![Linux Build Status](https://img.shields.io/travis/marten-seemann/quic-go/master.svg?style=flat-square&label=linux+build)](https://travis-ci.org/marten-seemann/quic-go)
+[![Windows Build Status](https://img.shields.io/appveyor/ci/marten-seemann/quic-go/master.svg?style=flat-square&label=windows+build)](https://ci.appveyor.com/project/marten-seemann/quic-go/branch/master)
+[![Code Coverage](https://img.shields.io/codecov/c/github/marten-seemann/quic-go/master.svg?style=flat-square)](https://codecov.io/gh/marten-seemann/quic-go/)
 
 quic-go is an implementation of the [QUIC](https://en.wikipedia.org/wiki/QUIC) protocol in Go.
 
@@ -69,4 +69,4 @@ http.Client{
 
 ## Contributing
 
-We are always happy to welcome new contributors! We have a number of self-contained issues that are suitable for first-time contributors, they are tagged with [help wanted](https://github.com/lucas-clemente/quic-go/issues?q=is%3Aissue+is%3Aopen+label%3A%22help+wanted%22). If you have any questions, please feel free to reach out by opening an issue or leaving a comment.
+We are always happy to welcome new contributors! We have a number of self-contained issues that are suitable for first-time contributors, they are tagged with [help wanted](https://github.com/marten-seemann/quic-go/issues?q=is%3Aissue+is%3Aopen+label%3A%22help+wanted%22). If you have any questions, please feel free to reach out by opening an issue or leaving a comment.

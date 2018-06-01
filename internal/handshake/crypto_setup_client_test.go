@@ -8,12 +8,12 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/lucas-clemente/quic-go/internal/crypto"
-	"github.com/lucas-clemente/quic-go/internal/mocks/crypto"
-	"github.com/lucas-clemente/quic-go/internal/protocol"
-	"github.com/lucas-clemente/quic-go/internal/testdata"
-	"github.com/lucas-clemente/quic-go/internal/utils"
-	"github.com/lucas-clemente/quic-go/qerr"
+	"github.com/marten-seemann/quic-go/internal/crypto"
+	"github.com/marten-seemann/quic-go/internal/mocks/crypto"
+	"github.com/marten-seemann/quic-go/internal/protocol"
+	"github.com/marten-seemann/quic-go/internal/testdata"
+	"github.com/marten-seemann/quic-go/internal/utils"
+	"github.com/marten-seemann/quic-go/qerr"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 )
